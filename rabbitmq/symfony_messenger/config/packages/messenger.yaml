@@ -1,0 +1,32 @@
+framework:
+    messenger:
+        # reset services after consuming messages
+        reset_on_message: true
+        
+        transports:
+            amqp_mail:
+                dsn: 'amqp://%env(APP_RABBIT_USER)%:%env(APP_RABBIT_PASS)%@%env(APP_RABBIT_HOST)%:%env(APP_RABBIT_PORT)%/'
+                serializer: App\Messenger\MailMessageSerializer
+                options:
+                    exchange:
+                        name: ib.internal
+                        type: topic
+#                    queues:
+#                        ib.mail:
+#                            binding_keys:['mail']
+                retry_strategy:
+                    max_retries: 0
+            amqp_test:
+                dsn: 'amqp://%env(APP_RABBIT_USER)%:%env(APP_RABBIT_PASS)%@%env(APP_RABBIT_HOST)%:%env(APP_RABBIT_PORT)%/'
+                serializer: App\Messenger\MailMessageSerializer
+                options:
+                    exchange:
+                        name: ib.internal
+                        type: topic
+#                    queues:
+#                        ib.test:
+#                            binding_keys:['test']
+                retry_strategy:
+                    max_retries: 0
+        routing:
+            'App\Message\MailMessage': [amqp_mail, amqp_test]

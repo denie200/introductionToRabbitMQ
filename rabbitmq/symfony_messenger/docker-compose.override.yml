@@ -1,0 +1,45 @@
+version: "3.4"
+    
+# Development environment override
+services:
+  php:
+    build:
+      target: app_php_dev
+    volumes:
+      - ./:/srv/app
+      - ./docker/php/conf.d/app.dev.ini:/usr/local/etc/php/conf.d/app.dev.ini:ro
+      # If you develop on Mac or Windows you can remove the vendor/ directory
+      #  from the bind-mount for better performance by enabling the next line:
+      #- /srv/app/vendor
+    environment:
+      # See https://xdebug.org/docs/all_settings#mode 
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+    extra_hosts:
+      # Ensure that host.docker.internal is correctly defined on Linux
+      - host.docker.internal:host-gateway
+    networks:
+      - sm
+    
+  caddy:
+    volumes:
+      - ./public:/srv/app/public:ro
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - sm
+  # Add rabbitMQ    
+  rabbit:
+    container_name: sm-rabbit
+    image: "rabbitmq:3.10-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - sm
+  
+  
+   
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###

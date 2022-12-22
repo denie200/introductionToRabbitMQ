@@ -1,0 +1,27 @@
+version: "3"
+
+networks:
+    tuts:
+
+services:
+  rabbit:
+    container_name: rabbit
+    image: "rabbitmq:3.10-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - tuts
+
+  app:
+    build: .
+    networks:
+      - tuts
+    depends_on:
+      - rabbit
+    volumes:
+      - /home/dmitri/tutorials/rabbitmq:/usr/src/tuts
+    entrypoint: ./run.sh
